@@ -5,10 +5,13 @@ import { generate } from "./utils.js";
 import { getAllFiles } from "./files.js";
 import path from "path";
 import { fileURLToPath } from 'url';
+import { uploadFile } from "./aws.js";
 
 // Get the equivalent of __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+uploadFile("ryanhui/package.json", "/Users/ryanhui/vercel/dist/output/91c7m/package.json");
 
 const app = express();
 app.use(cors())
@@ -21,7 +24,7 @@ app.post("/deploy", async (req, res) => {
     await simpleGit().clone(repoUrl, path.join(__dirname, `output/${id}`));
 
     const files = getAllFiles(path.join(__dirname, `output/${id}`));
-    console.log("Files:", files); // Add this line
+    console.log("Files:", files);
 
     res.json({
         id: id
