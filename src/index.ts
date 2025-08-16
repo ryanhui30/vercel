@@ -6,6 +6,9 @@ import { getAllFiles } from "./files.js";
 import path from "path";
 import { fileURLToPath } from 'url';
 import { uploadFile } from "./aws.js";
+import { createClient } from "redis";
+const publisher = createClient();
+publisher.connect();
 
 // Get the equivalent of __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -24,7 +27,14 @@ app.post("/deploy", async (req, res) => {
     await simpleGit().clone(repoUrl, path.join(__dirname, `output/${id}`));
 
     const files = getAllFiles(path.join(__dirname, `output/${id}`));
+
     console.log("Files:", files);
+
+    files.forEach(async file => {
+        await uploadFile(file.slice(__dirname.length + 1), file);
+    })
+
+    publisher.lPush("build-queue", id);
 
     res.json({
         id: id
