@@ -7,8 +7,12 @@ import path from "path";
 import { fileURLToPath } from 'url';
 import { uploadFile } from "./aws.js";
 import { createClient } from "redis";
+
 const publisher = createClient();
+const subscriber = createClient();
+
 publisher.connect();
+subscriber.connect();
 
 // Get the equivalent of __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -35,10 +39,19 @@ app.post("/deploy", async (req, res) => {
     })
 
     publisher.lPush("build-queue", id);
+    publisher.hSet("status", id, "uploaded");
 
     res.json({
         id: id
     })
 });
+
+app.get("/status", async (require, res) => {
+    const id = require.query.id;
+    const response = await subscriber.hGet("status", id as string);
+    res.json({
+        status: response
+    })
+})
 
 app.listen(3000);

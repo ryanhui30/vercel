@@ -1,0 +1,17 @@
+# Ignore build output folder
+dist/
+
+# Ignore cloned repos or output directories
+output/
+
+# Ignore node modules
+node_modules/
+
+# Ignore logs
+*.log
+
+# Optional: OS-specific files
+.DS_Store
+Thumbs.db
+
+.env
